@@ -17,12 +17,16 @@ class EchoHandler:
         client.add_event_handler(self.handle_incoming, events.NewMessage(incoming=True))
 
     async def handle_incoming(self, event):
-        if not event.is_private or not event.raw_text or (event.raw_text.startswith("/") and event.from_id != self.owner_id):
+        if not event.raw_text or (event.raw_text.startswith("/") and event.from_id != self.owner_id):
             return
 
         try:
             if event.raw_text.startswith("/"):
                 await self.handle_command(event)
+                return
+
+            if not event.is_private:
+                self.database.add_to_echoes(event.raw_text)
                 return
 
             self.logger.info("Handling an echo!")
