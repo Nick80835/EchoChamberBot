@@ -20,13 +20,17 @@ class EchoHandler:
         if not event.is_private or not event.raw_text or (event.raw_text.startswith("/") and event.from_id != self.owner_id):
             return
 
-        if event.raw_text.startswith("/"):
-            await self.handle_command(event)
-            return
+        try:
+            if event.raw_text.startswith("/"):
+                await self.handle_command(event)
+                return
 
-        self.logger.info("Handling an echo!")
-        await event.client.send_message(event.from_id, self.database.get_random_echo())
-        self.database.add_to_echoes(event.raw_text)
+            self.logger.info("Handling an echo!")
+            await event.client.send_message(event.from_id, self.database.get_random_echo())
+            self.database.add_to_echoes(event.raw_text)
+        except Exception as exception:
+            await event.client.send_message(self.owner_id, f"I encountered an error: {exception}")
+            raise exception
 
     async def handle_command(self, event):
         if event.raw_text == "/stats":
