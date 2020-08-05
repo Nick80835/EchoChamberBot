@@ -24,3 +24,11 @@ class Database:
 
     def get_stats(self) -> str:
         return f"Message count: {len(self.db['echoes'])}"
+
+    def remove_echo(self, echo_text: str) -> str:
+        try:
+            self.db["echoes"].remove(echo_text)
+            self.db.commit()
+            return "Successfully removed from my database!"
+        except ValueError:
+            return "That text isn't in my database!"
