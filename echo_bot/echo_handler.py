@@ -25,8 +25,15 @@ class EchoHandler:
 
         try:
             if event.raw_text.startswith("/"):
-                self.logger.info(f"Passing to command handler: {event.raw_text}")
-                await self.command_handler.handle_command(event)
+                if event.raw_text == "/echo":
+                    await event.reply(self.database.get_random_echo())
+                    return
+
+                if event.from_id == self.owner_id:
+                    self.logger.info(f"Passing to command handler: {event.raw_text}")
+                    await self.command_handler.handle_command(event)
+                    return
+
                 return
 
             if not event.is_private:
@@ -44,7 +51,7 @@ class EchoHandler:
         if not event.raw_text:
             return True
 
-        if event.from_id != self.owner_id and event.raw_text.lower().startswith(("/", "!", "g.", "r.", "noi")):
+        if event.from_id != self.owner_id and event.raw_text.lower().startswith(("!", "g.", "r.", "noi")):
             return True
 
         if event.from_id == self.owner_id and event.raw_text.lower().startswith(("!", "g.", "r.", "noi")):
