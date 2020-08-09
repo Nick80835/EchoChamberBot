@@ -31,6 +31,12 @@ class Database:
         dump_bytes.name = "dump.txt"
         return dump_bytes
 
+    def overwrite(self, ow_bytes: BytesIO):
+        ow_bytes.seek(0)
+        ow_list = ow_bytes.read().decode("utf-8").split("\n")
+        self.db["echoes"] = ow_list
+        self.db.commit()
+
     def remove_echo(self, echo_text: str) -> str:
         try:
             self.db["echoes"].remove(echo_text)
