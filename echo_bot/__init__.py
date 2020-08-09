@@ -2,24 +2,31 @@ import sys
 from logging import INFO, basicConfig, getLogger
 
 from echo_bot.database import Database
-from echo_bot.settings import Settings
 from echo_bot.echo_handler import EchoHandler
+from echo_bot.loader import Loader
+from echo_bot.settings import Settings
 from telethon import TelegramClient
 from telethon.errors.rpcerrorlist import PhoneNumberInvalidError
 from telethon.network.connection.tcpabridged import \
     ConnectionTcpAbridged as CTA
 
+from .command_handler import CommandHandler
+
 
 class EchoChamberBot:
     settings = Settings()
+    database = Database()
 
     def __init__(self):
         basicConfig(format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=INFO)
         self.logger = getLogger(__name__)
-        self.echo_handler = EchoHandler(self.settings, self.logger)
+        self.command_handler = CommandHandler(self.database, self.logger, self.settings)
+        self.echo_handler = EchoHandler(self.settings, self.logger, self.database, self.command_handler)
         self._start_client()
+        self.loader = Loader(self.client, self.logger, self.settings, self.database, self.command_handler)
 
     def run_until_done(self):
+        self.loader.load_all_modules()
         self.logger.info("Client successfully started.")
         self.echo_handler.start_handler(self.client)
         self.logger.info("Echo handler successfully started.")
@@ -62,6 +69,7 @@ class EchoChamberBot:
 
 
 echo_bot = EchoChamberBot()
+ldr = echo_bot.loader
 
 try:
     echo_bot.run_until_done()

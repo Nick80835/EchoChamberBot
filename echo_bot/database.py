@@ -1,3 +1,4 @@
+from io import BytesIO
 from random import choice
 
 from sqlitedict import SqliteDict
@@ -24,6 +25,11 @@ class Database:
 
     def get_stats(self) -> str:
         return f"Message count: {len(self.db['echoes'])}"
+
+    def get_dump(self) -> BytesIO:
+        dump_bytes = BytesIO(bytes("\n".join(self.db['echoes']), encoding="utf-8"))
+        dump_bytes.name = "dump.txt"
+        return dump_bytes
 
     def remove_echo(self, echo_text: str) -> str:
         try:
